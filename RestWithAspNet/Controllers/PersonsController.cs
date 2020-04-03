@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,7 @@ namespace RestWithAspNet.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase
+    public class PersonsController : ControllerBase
     {
         // GET api/values
         [HttpGet]
@@ -41,5 +42,27 @@ namespace RestWithAspNet.Controllers
         public void Delete(int id)
         {
         }
+
+
+        private decimal ConvertToDecimal(string number)
+        {
+            decimal decimalValue;
+            if (decimal.TryParse(number, out decimalValue))
+            {
+                return decimalValue;
+            }
+            return 0;
+        }
+
+        private bool IsNumeric(string strNumber)
+        {
+            double number;
+
+            bool isNumber = double.TryParse(strNumber, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out number);
+
+            return isNumber;
+        }
+
+
     }
 }
