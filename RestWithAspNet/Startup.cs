@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RestWithAspNet.Model.Context;
-using RestWithAspNet.Services;
-using RestWithAspNet.Services.Implementations;
+using Microsoft.Extensions.Logging;
+using RestWithASPNETUdemy.Services;
+using RestWithASPNETUdemy.Services.Implementattions;
+using RestWithASPNETUdemy.Model.Context;
+using Microsoft.EntityFrameworkCore;
 
-namespace RestWithAspNet
+namespace RestWithASPNETUdemy
 {
     public class Startup
     {
@@ -24,26 +28,18 @@ namespace RestWithAspNet
         {
             var connection = Configuration["MySqlConnection:MySqlConnectionString"];
             services.AddDbContext<MySQLContext>(options => options.UseMySql(connection));
-
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc();
 
             //Dependency Injection
             services.AddScoped<IPersonService, PersonServiceImpl>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseHsts();
-            }
+            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            loggerFactory.AddDebug();
 
-            app.UseHttpsRedirection();
             app.UseMvc();
         }
     }
