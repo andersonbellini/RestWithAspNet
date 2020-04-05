@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
 using RestWithASPNETUdemy.Model;
-using System.Threading;
 using RestWithASPNETUdemy.Model.Context;
 using System;
 using System.Linq;
 
-namespace RestWithASPNETUdemy.Services.Implementattions
+namespace RestWithASPNETUdemy.Repository.Implementattions
 {
-    public class PersonServiceImpl : IPersonService
+    public class PersonRepositoryImpl : IPersonRepository
     {
 
         private MySQLContext _context;
 
-        public PersonServiceImpl(MySQLContext context)
+        public PersonRepositoryImpl(MySQLContext context)
         {
             _context = context;
         }
@@ -52,7 +51,7 @@ namespace RestWithASPNETUdemy.Services.Implementattions
         {
             // Verificamos se a pessoa existe na base
             // Se não existir retornamos uma instancia vazia de pessoa
-            if (!Exists(person.Id)) return new Person();
+            if (!Exists(person.Id)) return null;
 
             // Pega o estado atual do registro no banco
             // seta as alterações e salva
@@ -91,7 +90,7 @@ namespace RestWithASPNETUdemy.Services.Implementattions
             }
         }
 
-        private bool Exists(long? id)
+        public bool Exists(long? id)
         {
             return _context.Persons.Any(p => p.Id.Equals(id));
         }
