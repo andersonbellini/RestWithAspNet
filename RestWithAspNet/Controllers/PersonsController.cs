@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RestWithASPNETUdemy.Model;
-using RestWithASPNETUdemy.Business;
-namespace RestWithASPNETUdemy.Controllers
+using RestWithAspNet.Model;
+using RestWithAspNet.Business;
+namespace RestWithAspNet.Controllers
 {
 
     /* Mapeia as requisições de http://localhost:{porta}/api/person/

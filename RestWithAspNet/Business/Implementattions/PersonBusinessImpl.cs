@@ -1,19 +1,15 @@
 ﻿using System.Collections.Generic;
-using RestWithASPNETUdemy.Model;
-using System.Threading;
-using RestWithASPNETUdemy.Model.Context;
-using System;
-using System.Linq;
-using RestWithASPNETUdemy.Repository;
+using RestWithAspNet.Model;
+using RestWithAspNet.Repository.Generic;
 
-namespace RestWithASPNETUdemy.Business.Implementattions
+namespace RestWithAspNet.Business.Implementattions
 {
     public class PersonBusinessImpl : IPersonBusiness
     {
 
-        private IPersonRepository _repository;
+        private IRepository<Person> _repository;
 
-        public PersonBusinessImpl(IPersonRepository repository)
+        public PersonBusinessImpl(IRepository<Person> repository)
         {
             _repository = repository;
         }
@@ -33,11 +29,12 @@ namespace RestWithASPNETUdemy.Business.Implementattions
             return _repository.FindById(id);
         }
 
-        // Método responsável por retornar todas as pessoas
+        //Método responsável por retornar todas as pessoas
         public List<Person> FindAll()
         {
             return _repository.FindAll();
         }
+
 
         // Método responsável por atualizar uma pessoa
         public Person Update(Person person)
@@ -52,5 +49,6 @@ namespace RestWithASPNETUdemy.Business.Implementattions
             _repository.Delete(id);
         }
 
+        
     }
 }

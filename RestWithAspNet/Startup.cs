@@ -5,15 +5,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RestWithASPNETUdemy.Business;
-using RestWithASPNETUdemy.Business.Implementattions;
-using RestWithASPNETUdemy.Model.Context;
-using RestWithASPNETUdemy.Repository;
-using RestWithASPNETUdemy.Repository.Implementattions;
+using RestWithAspNet.Business;
+using RestWithAspNet.Business.Implementattions;
+using RestWithAspNet.Model.Context;
+using RestWithAspNet.Repository;
+using RestWithAspNet.Repository.Generic;
+using RestWithAspNet.Repository.Implementattions;
 using System;
 using System.Collections.Generic;
 
-namespace RestWithASPNETUdemy
+namespace RestWithAspNet
 {
     public class Startup
     {
@@ -62,9 +63,15 @@ namespace RestWithASPNETUdemy
 
             //Add Version in API
             services.AddApiVersioning();
+
             //Dependency Injection
             services.AddScoped<IPersonBusiness, PersonBusinessImpl>();
+            services.AddScoped<IBookBusiness, BookBusinessImpl>();
+
             services.AddScoped<IPersonRepository, PersonRepositoryImpl>();
+
+            //Dependency Injecton of GenericRepository
+            services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

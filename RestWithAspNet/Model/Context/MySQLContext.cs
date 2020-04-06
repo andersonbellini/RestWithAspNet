@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RestWithASPNETUdemy.Model.Context
+namespace RestWithAspNet.Model.Context
 {
     public class MySQLContext : DbContext
     {
@@ -16,5 +16,7 @@ namespace RestWithASPNETUdemy.Model.Context
         public MySQLContext(DbContextOptions<MySQLContext> options) : base(options) {}
 
         public DbSet<Person> Persons { get; set; }
+
+        public DbSet<Book> Books { get; set; }
     }
 }

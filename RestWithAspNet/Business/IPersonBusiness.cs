@@ -1,7 +1,7 @@
-﻿using RestWithASPNETUdemy.Model;
+﻿using RestWithAspNet.Model;
 using System.Collections.Generic;
 
-namespace RestWithASPNETUdemy.Business
+namespace RestWithAspNet.Business
 {
     public interface IPersonBusiness
     {

@@ -1,7 +1,7 @@
-﻿using RestWithASPNETUdemy.Model;
+﻿using RestWithAspNet.Model;
 using System.Collections.Generic;
 
-namespace RestWithASPNETUdemy.Repository
+namespace RestWithAspNet.Repository
 {
     public interface IPersonRepository
     {

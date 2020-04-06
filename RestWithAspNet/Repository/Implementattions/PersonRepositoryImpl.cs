@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using RestWithASPNETUdemy.Model;
-using RestWithASPNETUdemy.Model.Context;
+using RestWithAspNet.Model;
+using RestWithAspNet.Model.Context;
 using System;
 using System.Linq;
 
-namespace RestWithASPNETUdemy.Repository.Implementattions
+namespace RestWithAspNet.Repository.Implementattions
 {
     public class PersonRepositoryImpl : IPersonRepository
     {

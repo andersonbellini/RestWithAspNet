@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using RestWithAspNet.Model.Base;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace RestWithASPNETUdemy.Model
+namespace RestWithAspNet.Model
 {
     [Table("persons")]
-    public class Person
+    public class Person : BaseEntity
     {
-        public long? Id { get; set; }
+        //public long? Id { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Address { get; set; }

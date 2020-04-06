@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace RestWithASPNETUdemy
+namespace RestWithAspNet
 {
     public class Program
     {
