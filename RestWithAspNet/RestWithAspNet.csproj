@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="db\dataset\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
