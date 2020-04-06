@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using RestWithAspNet.Business;
 using RestWithAspNet.Business.Implementattions;
 using RestWithAspNet.Model.Context;
@@ -28,7 +29,6 @@ namespace RestWithAspNet
             _configuration = configuration;
             _environment = environment;
             _logger = logger;
-
         }
 
 
@@ -59,18 +59,26 @@ namespace RestWithAspNet
                 }
             }
 
-            services.AddMvc();
+            //SEE More Details in:  https://blog.jeremylikness.com/5-rest-api-designs-in-dot-net-core-1-29a8527e999chttps://blog.jeremylikness.com/5-rest-api-designs-in-dot-net-core-1-29a8527e999c
+            services.AddMvc(options =>
+            {
+                options.RespectBrowserAcceptHeader = false;  // change to true if use xml format
+                options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeHeaderValue.Parse("application/json"));
+                options.FormatterMappings.SetMediaTypeMappingForFormat("xml", MediaTypeHeaderValue.Parse("text/xml"));
 
-            //Add Version in API
-            services.AddApiVersioning();
+            })
+            .AddXmlSerializerFormatters();
+
+            services.AddApiVersioning(option => option.ReportApiVersions = true);
 
             //Dependency Injection
             services.AddScoped<IPersonBusiness, PersonBusinessImpl>();
             services.AddScoped<IBookBusiness, BookBusinessImpl>();
 
-            services.AddScoped<IPersonRepository, PersonRepositoryImpl>();
+            // Não precisamos mais fazer dessa forma
+            //services.AddScoped<IPersonRepository, PersonRepositoryImpl>();
 
-            //Dependency Injecton of GenericRepository
+            //Dependency Injection of GenericRepository
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
         }
 
