@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using RestWithAspNet.Model;
 using RestWithAspNet.Business;
+using RestWithAspNet.Data.VO;
+
 namespace RestWithAspNet.Controllers
 {
 
     /* Mapeia as requisições de http://localhost:{porta}/api/person/
     Por padrão o ASP.NET Core mapeia todas as classes que extendem Controller
-    pegando a primeira parte do nome da classe em lower case [Person]Controller
+    pegando a primeira parte do nome da classe em lower case [PersonVO]Controller
     e expõe como endpoint REST
     */
     [ApiVersion("1")]
@@ -45,7 +46,7 @@ namespace RestWithAspNet.Controllers
         //Mapeia as requisições POST para http://localhost:{porta}/api/person/
         //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
         [HttpPost]
-        public IActionResult Post([FromBody]Person person)
+        public IActionResult Post([FromBody]PersonVO person)
         {
             if (person == null) return BadRequest();
             return new  ObjectResult(_personBusiness.Create(person));
@@ -54,7 +55,7 @@ namespace RestWithAspNet.Controllers
         //Mapeia as requisições PUT para http://localhost:{porta}/api/person/
         //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
         [HttpPut()]
-        public IActionResult Put([FromBody]Person person)
+        public IActionResult Put([FromBody]PersonVO person)
         {
             if (person == null) return BadRequest();
             var updatedPerson = _personBusiness.Update(person);
