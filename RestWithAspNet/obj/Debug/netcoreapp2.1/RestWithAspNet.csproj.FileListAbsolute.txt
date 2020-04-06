@@ -14,3 +14,4 @@ C:\Users\ander\Desktop\aulas\RestWithAspNet\RestWithAspNet\bin\Debug\netcoreapp2
 C:\Users\ander\Desktop\aulas\RestWithAspNet\RestWithAspNet\obj\Debug\netcoreapp2.1\RestWithAspNet.RazorTargetAssemblyInfo.cache
 C:\Users\ander\Desktop\aulas\RestWithAspNet\RestWithAspNet\obj\Debug\netcoreapp2.1\RestWithAspNet.dll
 C:\Users\ander\Desktop\aulas\RestWithAspNet\RestWithAspNet\obj\Debug\netcoreapp2.1\RestWithAspNet.pdb
+C:\Users\ander\Desktop\aulas\RestWithAspNet\RestWithAspNet\obj\Debug\netcoreapp2.1\RestWithAspNet.csprojAssemblyReference.cache
