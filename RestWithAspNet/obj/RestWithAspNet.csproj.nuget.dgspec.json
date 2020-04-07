@@ -83,6 +83,10 @@
               "target": "Package",
               "version": "[2.1.4, )"
             },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[2.4.0, )"
+            },
             "Tapioca.HATEOAS": {
               "target": "Package",
               "version": "[1.0.4, )"

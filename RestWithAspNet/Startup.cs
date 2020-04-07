@@ -16,6 +16,8 @@ using RestWithAspNet.Repository.Implementattions;
 using System;
 using System.Collections.Generic;
 using Tapioca.HATEOAS;
+using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Rewrite;
 
 namespace RestWithAspNet
 {
@@ -81,6 +83,18 @@ namespace RestWithAspNet
 
             services.AddApiVersioning(option => option.ReportApiVersions = true);
 
+            //Add Swagger Service
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1",
+                    new Info
+                    {
+                        Title = "RESTful API With ASP.NET Core",
+                        Version = "v1"
+                    });
+
+            });
+
             //Dependency Injection
             services.AddScoped<IPersonBusiness, PersonBusinessImpl>();
             services.AddScoped<IBookBusiness, BookBusinessImpl>();
@@ -97,7 +111,19 @@ namespace RestWithAspNet
         {
             loggerFactory.AddConsole(_configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-            
+
+            //Enable Swagger
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
+            //Starting our API in Swagger page
+            var option = new RewriteOptions();
+            option.AddRedirect("^$", "swagger");
+            app.UseRewriter(option);
+
             app.UseMvc(routes => {
                 routes.MapRoute(
                     name: "DefaultApi",

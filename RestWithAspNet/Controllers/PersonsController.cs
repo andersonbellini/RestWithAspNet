@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RestWithAspNet.Business;
 using RestWithAspNet.Data.VO;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Collections.Generic;
 using Tapioca.HATEOAS;
 
 namespace RestWithAspNet.Controllers
@@ -27,17 +29,32 @@ namespace RestWithAspNet.Controllers
 
         //Mapeia as requisições GET para http://localhost:{porta}/api/person/
         //Get sem parâmetros para o FindAll --> Busca Todos
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/persons/v1/
+        // [SwaggerResponse((202), Type = typeof(List<Person>))]
+        // determina o objeto de retorno em caso de sucesso List<Person>
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 204, 400 e 401
         [HttpGet]
+        [SwaggerResponse((200), Type = typeof(List<PersonVO>))]
+        [SwaggerResponse(204)]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get()
         {
             return Ok(_personBusiness.FindAll());
         }
 
-        //Mapeia as requisições GET para http://localhost:{porta}/api/person/{id}
-        //recebendo um ID como no Path da requisição
-        //Get com parâmetros para o FindById --> Busca Por ID
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/persons/v1/{id}
+        // [SwaggerResponse((202), Type = typeof(Person))]
+        // determina o objeto de retorno em caso de sucesso Person
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 204, 400 e 401
         [HttpGet("{id}")]
+        [SwaggerResponse((200), Type = typeof(PersonVO))]
+        [SwaggerResponse(204)]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get(long id)
         {
@@ -48,7 +65,15 @@ namespace RestWithAspNet.Controllers
 
         //Mapeia as requisições POST para http://localhost:{porta}/api/person/
         //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/
+        // [SwaggerResponse((202), Type = typeof(Person))]
+        // determina o objeto de retorno em caso de sucesso Person
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 400 e 401
         [HttpPost]
+        [SwaggerResponse((201), Type = typeof(PersonVO))]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Post([FromBody]PersonVO person)
         {
@@ -58,7 +83,14 @@ namespace RestWithAspNet.Controllers
 
         //Mapeia as requisições PUT para http://localhost:{porta}/api/person/
         //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
-        [HttpPut()]
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/persons/v1/
+        // determina o objeto de retorno em caso de sucesso Person
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 400 e 401
+        [HttpPut]
+        [SwaggerResponse((202), Type = typeof(PersonVO))]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Put([FromBody]PersonVO person)
         {
@@ -71,7 +103,13 @@ namespace RestWithAspNet.Controllers
 
         //Mapeia as requisições DELETE para http://localhost:{porta}/api/person/{id}
         //recebendo um ID como no Path da requisição
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/persons/v1/{id}
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 400 e 401
         [HttpDelete("{id}")]
+        [SwaggerResponse(204)]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Delete(int id)
         {
