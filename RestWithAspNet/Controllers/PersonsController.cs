@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RestWithAspNet.Business;
 using RestWithAspNet.Data.VO;
+using Tapioca.HATEOAS;
 
 namespace RestWithAspNet.Controllers
 {
@@ -27,6 +28,7 @@ namespace RestWithAspNet.Controllers
         //Mapeia as requisições GET para http://localhost:{porta}/api/person/
         //Get sem parâmetros para o FindAll --> Busca Todos
         [HttpGet]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get()
         {
             return Ok(_personBusiness.FindAll());
@@ -36,6 +38,7 @@ namespace RestWithAspNet.Controllers
         //recebendo um ID como no Path da requisição
         //Get com parâmetros para o FindById --> Busca Por ID
         [HttpGet("{id}")]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get(long id)
         {
             var person = _personBusiness.FindById(id);
@@ -46,6 +49,7 @@ namespace RestWithAspNet.Controllers
         //Mapeia as requisições POST para http://localhost:{porta}/api/person/
         //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
         [HttpPost]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Post([FromBody]PersonVO person)
         {
             if (person == null) return BadRequest();
@@ -55,6 +59,7 @@ namespace RestWithAspNet.Controllers
         //Mapeia as requisições PUT para http://localhost:{porta}/api/person/
         //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
         [HttpPut()]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Put([FromBody]PersonVO person)
         {
             if (person == null) return BadRequest();
@@ -67,6 +72,7 @@ namespace RestWithAspNet.Controllers
         //Mapeia as requisições DELETE para http://localhost:{porta}/api/person/{id}
         //recebendo um ID como no Path da requisição
         [HttpDelete("{id}")]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Delete(int id)
         {
             _personBusiness.Delete(id);

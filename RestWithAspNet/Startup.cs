@@ -8,12 +8,14 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using RestWithAspNet.Business;
 using RestWithAspNet.Business.Implementattions;
+using RestWithAspNet.HyperMedia;
 using RestWithAspNet.Model.Context;
 using RestWithAspNet.Repository;
 using RestWithAspNet.Repository.Generic;
 using RestWithAspNet.Repository.Implementattions;
 using System;
 using System.Collections.Generic;
+using Tapioca.HATEOAS;
 
 namespace RestWithAspNet
 {
@@ -69,6 +71,14 @@ namespace RestWithAspNet
             })
             .AddXmlSerializerFormatters();
 
+            //Define options to filter HATEOAS
+            var filterOptions = new HyperMediaFilterOptions();
+            filterOptions.ObjectContentResponseEnricherList.Add(new PersonEnricher());
+            filterOptions.ObjectContentResponseEnricherList.Add(new BookEnricher());
+            
+            //Inject Service
+            services.AddSingleton(filterOptions);
+
             services.AddApiVersioning(option => option.ReportApiVersions = true);
 
             //Dependency Injection
@@ -87,8 +97,12 @@ namespace RestWithAspNet
         {
             loggerFactory.AddConsole(_configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
-            app.UseMvc();
+            
+            app.UseMvc(routes => {
+                routes.MapRoute(
+                    name: "DefaultApi",
+                    template: "{controller=Values}/{id?}");
+            });
         }
     }
 }
