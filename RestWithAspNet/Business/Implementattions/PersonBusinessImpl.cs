@@ -9,11 +9,11 @@ namespace RestWithAspNet.Business.Implementattions
     public class PersonBusinessImpl : IPersonBusiness
     {
 
-        private IRepository<Person> _repository;
+        private IPersonRepository _repository;
 
         private readonly PersonConverter _converter;
 
-        public PersonBusinessImpl(IRepository<Person> repository)
+        public PersonBusinessImpl(IPersonRepository repository)
         {
             _repository = repository;
             _converter = new PersonConverter(); ;
@@ -42,8 +42,12 @@ namespace RestWithAspNet.Business.Implementattions
         {
             return _converter.ParseList(_repository.FindAll());
         }
-
-
+        
+        public List<PersonVO> FindByName(string firstName, string lastName)
+        {
+            return _converter.ParseList(_repository.FindByName(firstName, lastName));
+        }
+        
         // Método responsável por atualizar uma pessoa
         public PersonVO Update(PersonVO person)
         {

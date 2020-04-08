@@ -130,9 +130,8 @@ namespace RestWithAspNet
             services.AddScoped<IBookBusiness, BookBusinessImpl>();
             services.AddScoped<ILoginBusiness, LoginBusinessImpl>();
 
-            // Não precisamos mais fazer dessa forma
-            //services.AddScoped<IPersonRepository, PersonRepositoryImpl>();
             services.AddScoped<IUserRepository, UserRepositoryImpl>();
+            services.AddScoped<IPersonRepository, PersonRepositoryImpl>();
 
             //Dependency Injection of GenericRepository
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
