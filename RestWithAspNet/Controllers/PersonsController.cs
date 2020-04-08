@@ -105,6 +105,23 @@ namespace RestWithAspNet.Controllers
             return new ObjectResult(updatedPerson);
         }
 
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/persons/v1/
+        // determina o objeto de retorno em caso de sucesso Person
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 400 e 401
+        [HttpPatch]
+        [SwaggerResponse((202), Type = typeof(PersonVO))]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
+        [Authorize("Bearer")]
+        [TypeFilter(typeof(HyperMediaFilter))]
+        public IActionResult Patch([FromBody]PersonVO person)
+        {
+            if (person == null) return BadRequest();
+            var updatedPerson = _personBusiness.Update(person);
+            if (updatedPerson == null) return BadRequest();
+            return new OkObjectResult(updatedPerson);
+        }
 
         //Mapeia as requisições DELETE para http://localhost:{porta}/api/person/{id}
         //recebendo um ID como no Path da requisição
