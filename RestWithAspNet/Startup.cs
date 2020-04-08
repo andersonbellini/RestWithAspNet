@@ -18,6 +18,10 @@ using System.Collections.Generic;
 using Tapioca.HATEOAS;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Rewrite;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using RestWithAspNet.Security.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace RestWithAspNet
 {
@@ -25,7 +29,6 @@ namespace RestWithAspNet
     {
         private readonly ILogger _logger;
         public IConfiguration _configuration { get; }
-
         public IHostingEnvironment _environment { get; }
 
         public Startup(IConfiguration configuration, IHostingEnvironment environment, ILogger<Startup> logger)
@@ -42,26 +45,52 @@ namespace RestWithAspNet
             var connectionString = _configuration["MySqlConnection:MySqlConnectionString"];
             services.AddDbContext<MySQLContext>(options => options.UseMySql(connectionString));
 
-            if (_environment.IsDevelopment())
-            {
-                try
-                {
-                    //Evolve configurations
-                    var evolveConnection = new MySql.Data.MySqlClient.MySqlConnection(connectionString);
-                    var evolve = new Evolve.Evolve("evolve.json", evolveConnection, msg => _logger.LogInformation(msg))
-                    {
-                        Locations = new List<string> { "db/migrations" },
-                        IsEraseDisabled = true,
-                    };
+            //Adding Migrations Support
+            ExecuteMigrations(connectionString);
 
-                    evolve.Migrate();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical("Database migration failed.", ex);
-                    throw;
-                }
-            }
+            var signingConfigurations = new SigningConfigurations();
+            services.AddSingleton(signingConfigurations);
+
+            var tokenConfigurations = new TokenConfiguration();
+
+            new ConfigureFromConfigurationOptions<TokenConfiguration>(
+                _configuration.GetSection("TokenConfigurations")
+            )
+            .Configure(tokenConfigurations);
+
+            services.AddSingleton(tokenConfigurations);
+
+            services.AddAuthentication(authOptions =>
+            {
+                authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                authOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(bearerOptions =>
+            {
+                var paramsValidation = bearerOptions.TokenValidationParameters;
+                paramsValidation.IssuerSigningKey = signingConfigurations.Key;
+                paramsValidation.ValidAudience = tokenConfigurations.Audience;
+                paramsValidation.ValidIssuer = tokenConfigurations.Issuer;
+
+                // Validates the signing of a received token
+                paramsValidation.ValidateIssuerSigningKey = true;
+
+                // Checks if a received token is still valid
+                paramsValidation.ValidateLifetime = true;
+
+                // Tolerance time for the expiration of a token (used in case
+                // of time synchronization problems between different
+                // computers involved in the communication process)
+                paramsValidation.ClockSkew = TimeSpan.Zero;
+            });
+
+            // Enables the use of the token as a means of
+            // authorizing access to this project's resources
+            services.AddAuthorization(auth =>
+            {
+                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme‌​)
+                    .RequireAuthenticatedUser().Build());
+            });
 
             //SEE More Details in:  https://blog.jeremylikness.com/5-rest-api-designs-in-dot-net-core-1-29a8527e999chttps://blog.jeremylikness.com/5-rest-api-designs-in-dot-net-core-1-29a8527e999c
             services.AddMvc(options =>
@@ -81,6 +110,7 @@ namespace RestWithAspNet
             //Inject Service
             services.AddSingleton(filterOptions);
 
+            //Versioning
             services.AddApiVersioning(option => option.ReportApiVersions = true);
 
             //Add Swagger Service
@@ -98,9 +128,11 @@ namespace RestWithAspNet
             //Dependency Injection
             services.AddScoped<IPersonBusiness, PersonBusinessImpl>();
             services.AddScoped<IBookBusiness, BookBusinessImpl>();
+            services.AddScoped<ILoginBusiness, LoginBusinessImpl>();
 
             // Não precisamos mais fazer dessa forma
             //services.AddScoped<IPersonRepository, PersonRepositoryImpl>();
+            services.AddScoped<IUserRepository, UserRepositoryImpl>();
 
             //Dependency Injection of GenericRepository
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
@@ -130,5 +162,31 @@ namespace RestWithAspNet
                     template: "{controller=Values}/{id?}");
             });
         }
+
+        private void ExecuteMigrations(string connectionString)
+        {
+            if (_environment.IsDevelopment())
+            {
+                try
+                {
+                    var evolveConnection = new MySql.Data.MySqlClient.MySqlConnection(connectionString);
+
+                    var evolve = new Evolve.Evolve("evolve.json", evolveConnection, msg => _logger.LogInformation(msg))
+                    {
+                        Locations = new List<string> { "db/migrations" },
+                        IsEraseDisabled = true,
+                    };
+
+                    evolve.Migrate();
+
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogCritical("Database migration failed.", ex);
+                    throw;
+                }
+            }
+        }
+
     }
 }
