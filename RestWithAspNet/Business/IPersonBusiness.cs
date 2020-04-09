@@ -1,5 +1,6 @@
 ﻿using RestWithAspNet.Data.VO;
 using System.Collections.Generic;
+using Tapioca.HATEOAS.Utils;
 
 namespace RestWithAspNet.Business
 {
@@ -11,5 +12,6 @@ namespace RestWithAspNet.Business
         List<PersonVO> FindByName(string fristName, string lastName);
         PersonVO Update(PersonVO person);
         void Delete(long id);
+        PagedSearchDTO<PersonVO> FindWithPagedSearch(string name, string sortDirection, int pageSize, int page);
     }
 }
