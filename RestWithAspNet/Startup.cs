@@ -129,6 +129,7 @@ namespace RestWithAspNet
             services.AddScoped<IPersonBusiness, PersonBusinessImpl>();
             services.AddScoped<IBookBusiness, BookBusinessImpl>();
             services.AddScoped<ILoginBusiness, LoginBusinessImpl>();
+            services.AddScoped<IFileBusiness, FileBusinessImpl>();
 
             services.AddScoped<IUserRepository, UserRepositoryImpl>();
             services.AddScoped<IPersonRepository, PersonRepositoryImpl>();
