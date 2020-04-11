@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using RestWithAspNet.Model;
 using System;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System.Net.Http.Headers;
 
 namespace RestWithAspNet.Controllers
 {
@@ -20,7 +19,7 @@ namespace RestWithAspNet.Controllers
         }
 
         [HttpGet]
-        [SwaggerResponse((200), Type = typeof(byte []))]
+        [SwaggerResponse((200), Type = typeof(byte[]))]
         [SwaggerResponse(204)]
         [SwaggerResponse(400)]
         [SwaggerResponse(401)]
@@ -37,6 +36,6 @@ namespace RestWithAspNet.Controllers
             return new ContentResult();
         }
 
-      
+
     }
 }

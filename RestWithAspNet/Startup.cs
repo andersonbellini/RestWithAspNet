@@ -1,27 +1,31 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
+
+using RestWithAspNet.Model.Context;
 using RestWithAspNet.Business;
 using RestWithAspNet.Business.Implementattions;
-using RestWithAspNet.HyperMedia;
-using RestWithAspNet.Model.Context;
-using RestWithAspNet.Repository;
 using RestWithAspNet.Repository.Generic;
-using RestWithAspNet.Repository.Implementattions;
-using System;
-using System.Collections.Generic;
-using Tapioca.HATEOAS;
+
+using RestWithAspNet.HyperMedia;
 using Swashbuckle.AspNetCore.Swagger;
-using Microsoft.AspNetCore.Rewrite;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+using Tapioca.HATEOAS;
 using RestWithAspNet.Security.Configuration;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using System.IO;
+using RestWithAspNet.Repository;
+using RestWithAspNet.Repository.Implementattions;
 
 namespace RestWithAspNet
 {
@@ -38,14 +42,11 @@ namespace RestWithAspNet
             _logger = logger;
         }
 
-
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = _configuration["MySqlConnection:MySqlConnectionString"];
             services.AddDbContext<MySQLContext>(options => options.UseMySql(connectionString));
 
-            //Adding Migrations Support
             ExecuteMigrations(connectionString);
 
             var signingConfigurations = new SigningConfigurations();
@@ -60,6 +61,7 @@ namespace RestWithAspNet
 
             services.AddSingleton(tokenConfigurations);
 
+
             services.AddAuthentication(authOptions =>
             {
                 authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -71,20 +73,13 @@ namespace RestWithAspNet
                 paramsValidation.ValidAudience = tokenConfigurations.Audience;
                 paramsValidation.ValidIssuer = tokenConfigurations.Issuer;
 
-                // Validates the signing of a received token
                 paramsValidation.ValidateIssuerSigningKey = true;
 
-                // Checks if a received token is still valid
                 paramsValidation.ValidateLifetime = true;
 
-                // Tolerance time for the expiration of a token (used in case
-                // of time synchronization problems between different
-                // computers involved in the communication process)
                 paramsValidation.ClockSkew = TimeSpan.Zero;
             });
 
-            // Enables the use of the token as a means of
-            // authorizing access to this project's resources
             services.AddAuthorization(auth =>
             {
                 auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
@@ -92,40 +87,34 @@ namespace RestWithAspNet
                     .RequireAuthenticatedUser().Build());
             });
 
-            //SEE More Details in:  https://blog.jeremylikness.com/5-rest-api-designs-in-dot-net-core-1-29a8527e999chttps://blog.jeremylikness.com/5-rest-api-designs-in-dot-net-core-1-29a8527e999c
             services.AddMvc(options =>
             {
-                options.RespectBrowserAcceptHeader = false;  // change to true if use xml format
-                options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeHeaderValue.Parse("application/json"));
+                options.RespectBrowserAcceptHeader = true;
                 options.FormatterMappings.SetMediaTypeMappingForFormat("xml", MediaTypeHeaderValue.Parse("text/xml"));
+                options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeHeaderValue.Parse("application/json"));
 
             })
             .AddXmlSerializerFormatters();
 
-            //Define options to filter HATEOAS
             var filterOptions = new HyperMediaFilterOptions();
-            filterOptions.ObjectContentResponseEnricherList.Add(new PersonEnricher());
             filterOptions.ObjectContentResponseEnricherList.Add(new BookEnricher());
-            
-            //Inject Service
+            filterOptions.ObjectContentResponseEnricherList.Add(new PersonEnricher());
+
             services.AddSingleton(filterOptions);
 
-            //Versioning
             services.AddApiVersioning(option => option.ReportApiVersions = true);
 
-            //Add Swagger Service
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1",
                     new Info
                     {
-                        Title = "RESTful API With ASP.NET Core",
-                        Version = "v1"
+                        Title = "RESTful API With ASP.NET Core 2.0",
+                        Version = "v2"
                     });
 
             });
 
-            //Dependency Injection
             services.AddScoped<IPersonBusiness, PersonBusinessImpl>();
             services.AddScoped<IBookBusiness, BookBusinessImpl>();
             services.AddScoped<ILoginBusiness, LoginBusinessImpl>();
@@ -134,33 +123,7 @@ namespace RestWithAspNet
             services.AddScoped<IUserRepository, UserRepositoryImpl>();
             services.AddScoped<IPersonRepository, PersonRepositoryImpl>();
 
-            //Dependency Injection of GenericRepository
             services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
-        {
-            loggerFactory.AddConsole(_configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-
-            //Enable Swagger
-            app.UseSwagger();
-
-            app.UseSwaggerUI(c => {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
-
-            //Starting our API in Swagger page
-            var option = new RewriteOptions();
-            option.AddRedirect("^$", "swagger");
-            app.UseRewriter(option);
-
-            app.UseMvc(routes => {
-                routes.MapRoute(
-                    name: "DefaultApi",
-                    template: "{controller=Values}/{id?}");
-            });
         }
 
         private void ExecuteMigrations(string connectionString)
@@ -171,7 +134,7 @@ namespace RestWithAspNet
                 {
                     var evolveConnection = new MySql.Data.MySqlClient.MySqlConnection(connectionString);
 
-                    var evolve = new Evolve.Evolve("evolve.json", evolveConnection, msg => _logger.LogInformation(msg))
+                    var evolve = new Evolve.Evolve(Directory.GetCurrentDirectory() + "/db/Evolve.json", evolveConnection, msg => _logger.LogInformation(Directory.GetCurrentDirectory() + "\n" + msg))
                     {
                         Locations = new List<string> { "db/migrations" },
                         IsEraseDisabled = true,
@@ -188,5 +151,27 @@ namespace RestWithAspNet
             }
         }
 
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        {
+            loggerFactory.AddConsole(_configuration.GetSection("Logging"));
+            loggerFactory.AddDebug();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
+
+            var option = new RewriteOptions();
+            option.AddRedirect("^$", "swagger");
+            app.UseRewriter(option);
+
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute(
+                    name: "DefaultApi",
+                    template: "{controller=Values}/{id?}");
+            });
+
+        }
     }
 }

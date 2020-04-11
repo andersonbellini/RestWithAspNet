@@ -1,7 +1,10 @@
-﻿//using Tapioca.HATEOAS;
+﻿using Tapioca.HATEOAS;
 using Microsoft.AspNetCore.Mvc;
 using RestWithAspNet.Business;
 using RestWithAspNet.Data.VO;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestWithAspNet.Controllers
 {
@@ -25,54 +28,86 @@ namespace RestWithAspNet.Controllers
             _bookBusiness = bookBusiness;
         }
 
-        //Mapeia as requisições GET para http://localhost:{porta}/api/books/v1/
-        //Get sem parâmetros para o FindAll --> Busca Todos
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/books/v1/
+        // [SwaggerResponse((202), Type = typeof(List<Book>))]
+        // determina o objeto de retorno em caso de sucesso List<Book>
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 204, 400 e 401
         [HttpGet]
-        //[TypeFilter(typeof(HyperMediaFilter))]
+        [SwaggerResponse((200), Type = typeof(List<BookVO>))]
+        [SwaggerResponse(204)]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
+        [Authorize("Bearer")]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get()
         {
-            return Ok(_bookBusiness.FindAll());
+            return new OkObjectResult(_bookBusiness.FindAll());
         }
 
-        //Mapeia as requisições GET para http://localhost:{porta}/api/books/v1/{id}
-        //recebendo um ID como no Path da requisição
-        //Get com parâmetros para o FindById --> Busca Por ID
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/books/v1/{id}
+        // [SwaggerResponse((202), Type = typeof(Book))]
+        // determina o objeto de retorno em caso de sucesso Book
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 204, 400 e 401
         [HttpGet("{id}")]
-        //[TypeFilter(typeof(HyperMediaFilter))]
+        [SwaggerResponse((200), Type = typeof(BookVO))]
+        [SwaggerResponse(204)]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
+        [Authorize("Bearer")]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get(long id)
         {
             var book = _bookBusiness.FindById(id);
             if (book == null) return NotFound();
-            return Ok(book);
+            return new OkObjectResult(book);
         }
 
-        //Mapeia as requisições POST para http://localhost:{porta}/api/books/v1/
-        //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/
+        // [SwaggerResponse((202), Type = typeof(Book))]
+        // determina o objeto de retorno em caso de sucesso Book
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 400 e 401
         [HttpPost]
-        //[TypeFilter(typeof(HyperMediaFilter))]
+        [SwaggerResponse((201), Type = typeof(BookVO))]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
+        [Authorize("Bearer")]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Post([FromBody]BookVO book)
         {
             if (book == null) return BadRequest();
-            return new ObjectResult(_bookBusiness.Create(book));
+            return new OkObjectResult(_bookBusiness.Create(book));
         }
 
-        //Mapeia as requisições PUT para http://localhost:{porta}/api/books/v1/
-        //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/books/v1/
+        // determina o objeto de retorno em caso de sucesso Book
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 400 e 401
         [HttpPut]
-        //[TypeFilter(typeof(HyperMediaFilter))]
+        [SwaggerResponse((202), Type = typeof(BookVO))]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
+        [Authorize("Bearer")]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Put([FromBody]BookVO book)
         {
             if (book == null) return BadRequest();
             var updatedBook = _bookBusiness.Update(book);
             if (updatedBook == null) return BadRequest();
-            return new ObjectResult(updatedBook);
+            return new OkObjectResult(updatedBook);
         }
 
-
-        //Mapeia as requisições DELETE para http://localhost:{porta}/api/books/v1/{id}
-        //recebendo um ID como no Path da requisição
+        // Configura o Swagger para a operação
+        // http://localhost:{porta}/api/books/v1/{id}
+        // O [SwaggerResponse(XYZ)] define os códigos de retorno 400 e 401
         [HttpDelete("{id}")]
-        //[TypeFilter(typeof(HyperMediaFilter))]
+        [SwaggerResponse(204)]
+        [SwaggerResponse(400)]
+        [SwaggerResponse(401)]
+        [Authorize("Bearer")]
+        [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Delete(int id)
         {
             _bookBusiness.Delete(id);

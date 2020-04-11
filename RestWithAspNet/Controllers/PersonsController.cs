@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Tapioca.HATEOAS;
 using Microsoft.AspNetCore.Mvc;
 using RestWithAspNet.Business;
 using RestWithAspNet.Data.VO;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Collections.Generic;
-using Tapioca.HATEOAS;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RestWithAspNet.Controllers
 {
 
-    /* Mapeia as requisições de http://localhost:{porta}/api/person/
+    /* Mapeia as requisições de http://localhost:{porta}/api/persons/v1/
     Por padrão o ASP.NET Core mapeia todas as classes que extendem Controller
-    pegando a primeira parte do nome da classe em lower case [PersonVO]Controller
+    pegando a primeira parte do nome da classe em lower case [Person]Controller
     e expõe como endpoint REST
     */
     [ApiVersion("1")]
@@ -28,8 +28,6 @@ namespace RestWithAspNet.Controllers
             _personBusiness = personBusiness;
         }
 
-        //Mapeia as requisições GET para http://localhost:{porta}/api/person/
-        //Get sem parâmetros para o FindAll --> Busca Todos
         // Configura o Swagger para a operação
         // http://localhost:{porta}/api/persons/v1/
         // [SwaggerResponse((202), Type = typeof(List<Person>))]
@@ -44,7 +42,7 @@ namespace RestWithAspNet.Controllers
         [TypeFilter(typeof(HyperMediaFilter))]
         public IActionResult Get()
         {
-            return Ok(_personBusiness.FindAll());
+            return new OkObjectResult(_personBusiness.FindAll());
         }
 
         // Configura o Swagger para a operação
@@ -97,11 +95,9 @@ namespace RestWithAspNet.Controllers
         {
             var person = _personBusiness.FindById(id);
             if (person == null) return NotFound();
-            return Ok(person);
+            return new OkObjectResult(person);
         }
 
-        //Mapeia as requisições POST para http://localhost:{porta}/api/person/
-        //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
         // Configura o Swagger para a operação
         // http://localhost:{porta}/api/
         // [SwaggerResponse((202), Type = typeof(Person))]
@@ -116,11 +112,9 @@ namespace RestWithAspNet.Controllers
         public IActionResult Post([FromBody]PersonVO person)
         {
             if (person == null) return BadRequest();
-            return new  ObjectResult(_personBusiness.Create(person));
+            return new OkObjectResult(_personBusiness.Create(person));
         }
 
-        //Mapeia as requisições PUT para http://localhost:{porta}/api/person/
-        //O [FromBody] consome o Objeto JSON enviado no corpo da requisição
         // Configura o Swagger para a operação
         // http://localhost:{porta}/api/persons/v1/
         // determina o objeto de retorno em caso de sucesso Person
@@ -136,8 +130,9 @@ namespace RestWithAspNet.Controllers
             if (person == null) return BadRequest();
             var updatedPerson = _personBusiness.Update(person);
             if (updatedPerson == null) return BadRequest();
-            return new ObjectResult(updatedPerson);
+            return new OkObjectResult(updatedPerson);
         }
+
 
         // Configura o Swagger para a operação
         // http://localhost:{porta}/api/persons/v1/
@@ -157,17 +152,12 @@ namespace RestWithAspNet.Controllers
             return new OkObjectResult(updatedPerson);
         }
 
-        //Mapeia as requisições DELETE para http://localhost:{porta}/api/person/{id}
-        //recebendo um ID como no Path da requisição
-        // Configura o Swagger para a operação
-        // http://localhost:{porta}/api/persons/v1/{id}
-        // O [SwaggerResponse(XYZ)] define os códigos de retorno 400 e 401
         [HttpDelete("{id}")]
         [SwaggerResponse(204)]
         [SwaggerResponse(400)]
         [SwaggerResponse(401)]
-        [Authorize("Bearer")]
         [TypeFilter(typeof(HyperMediaFilter))]
+        [Authorize("Bearer")]
         public IActionResult Delete(int id)
         {
             _personBusiness.Delete(id);
